@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f7f4;
+            color: #2e7d32;
+            margin: 0;
+            padding: 20px;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #1b5e20;
+        }
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 8px;
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background: #388e3c;
+        }
+
+        /* Forms */
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        input, select {
+            padding: 10px;
+            border: 2px solid #4caf50;
+            border-radius: 6px;
+            outline: none;
+            font-size: 16px;
+            background: #f0f7f4;
+            color: #2e7d32;
+        }
+        input::placeholder {
+            color: #81c784;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background: #66bb6a;
+            color: white;
+        }
+        td {
+            border-bottom: 1px solid #a5d6a7;
+        }
+        tr:hover {
+            background: #c8e6c9;
+        }
+
+        /* Footer Actions */
+        .footer-actions {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #4caf50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+
+        <h3>Manage Sports</h3>
+        <form action="/admin/add-sport" method="POST">
+            <input type="text" name="sport_name" placeholder="Enter sport name" required>
+            <button type="submit" class="btn">Add Sport</button>
+        </form>
+
+        <h3>Existing Sports</h3>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Sport Name</th>
+            </tr>
+            <% sports.forEach(sport => { %>
+                <tr>
+                    <td><%= sport.id %></td>
+                    <td><%= sport.name %></td>
+                </tr>
+            <% }) %>
+        </table>
+
+        <h3>Create a Sport Session</h3>
+        <form action="/sessions" method="POST">
+            <select name="sport_id" required>
+                <% sports.forEach(sport => { %>
+                    <option value="<%= sport.id %>"><%= sport.name %></option>
+                <% }) %>
+            </select>
+            <input type="text" name="venue" placeholder="Enter venue" required>
+            <input type="datetime-local" name="date_time" required>
+            <button type="submit" class="btn">Create Session</button>
+        </form>
+
+        <h3>Available Sessions</h3>
+        <table>
+            <tr>
+                <th>Sport</th>
+                <th>Venue</th>
+                <th>Date & Time</th>
+                <th>Action</th>
+            </tr>
+            <% sessions.forEach(session => { %>
+                <tr>
+                    <td><%= session.sport_name %></td>
+                    <td><%= session.venue %></td>
+                    <td><%= new Date(session.date_time).toLocaleString() %></td>
+                    <td>
+                        <form action="/sessions/join/<%= session.id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="btn">Join</button>
+                        </form>
+                        <form action="/sessions/delete/<%= session.id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="btn" onclick="return confirm('Are you sure you want to delete this session?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+
+        <h3>Joined Sessions</h3>
+        <table>
+            <tr>
+                <th>Sport</th>
+                <th>Venue</th>
+                <th>Date & Time</th>
+            </tr>
+            <% if (joinedSessions && joinedSessions.length > 0) { %>
+                <% joinedSessions.forEach(session => { %>
+                    <tr>
+                        <td><%= session.sport_name %></td>
+                        <td><%= session.venue %></td>
+                        <td><%= new Date(session.date_time).toLocaleString() %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="3">No sessions joined yet.</td>
+                </tr>
+            <% } %>
+        </table>
+
+        <div class="footer-actions">
+            <a href="/reports" class="btn">View Reports</a>
+            <a href="/logout" class="btn">Logout</a>
+            <a href="/change-password" class="btn">Change Password</a>
+        </div>
+    </div>
+
+</body>
+</html>
