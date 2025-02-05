@@ -7,17 +7,14 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const app = express();
 
-// Session Middleware
 app.use(session({
     secret: 'your-secret-key', 
     resave: false,
     saveUninitialized: true
 }));
 
-// Flash Messages Middleware
 app.use(flash());
 
-// To make flash messages available in all views
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
@@ -25,22 +22,19 @@ app.use((req, res, next) => {
 });
 
 
-// Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
     if (req.session.user) return next();
     res.redirect('/login');
 };
 
-// Middleware to check admin role
 const isAdmin = (req, res, next) => {
     if (req.session.user && req.session.user.role === 'admin') return next();
     res.redirect('/');
 };
 
-// Home Page
 router.get('/', (req, res) => res.render('home'));
 
-// Register Route (Handles Duplicate Emails)
+
 router.get('/register', (req, res) => res.render('register'));
 
 router.post('/register', async (req, res) => {
@@ -62,7 +56,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login Route
+
 router.get('/login', (req, res) => res.render('login'));
 
 router.post('/login', async (req, res) => {
@@ -81,18 +75,16 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Logout
+
 router.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
 });
 
 
-// Admin Dashboard
 router.get('/admin-dashboard', isAdmin, async (req, res) => {
     try {
         const sports = await pool.query('SELECT * FROM sports');
-        
-        // Fetch available sessions
+
         const sessions = await pool.query(`
             SELECT se.id, se.venue, se.date_time, s.name AS sport_name 
             FROM sessions se
@@ -100,7 +92,6 @@ router.get('/admin-dashboard', isAdmin, async (req, res) => {
             WHERE se.status = $1
         `, ['upcoming']);
 
-        // Fetch joined sessions
         const joinedSessions = await pool.query(`
             SELECT se.id, se.venue, se.date_time, s.name AS sport_name
             FROM session_participants sp
@@ -121,7 +112,6 @@ router.get('/admin-dashboard', isAdmin, async (req, res) => {
     }
 });
 
-// Create Sport Route (No changes)
 router.post('/admin/add-sport', isAdmin, async (req, res) => {
     try {
         await pool.query('INSERT INTO sports (name) VALUES ($1)', [req.body.sport_name]);
@@ -132,16 +122,13 @@ router.post('/admin/add-sport', isAdmin, async (req, res) => {
     }
 });
 
-// Player Dashboard
 router.get('/player-dashboard', isAuthenticated, async (req, res) => {
     try {
         const userId = req.session.user.id; // Use req.session.user instead of req.user
 
-        // Fetch available sports
         const sportsQuery = 'SELECT * FROM sports';
         const sportsResult = await pool.query(sportsQuery);
 
-        // Fetch upcoming sessions
         const sessionsQuery = `
             SELECT s.name AS sport_name, se.* 
             FROM sessions se 
@@ -150,7 +137,6 @@ router.get('/player-dashboard', isAuthenticated, async (req, res) => {
         `;
         const sessionsResult = await pool.query(sessionsQuery, ['upcoming']);
 
-        // Fetch sessions the user has joined
         const joinedSessionsQuery = `
             SELECT s.name AS sport_name, se.* 
             FROM session_participants sp
@@ -160,11 +146,10 @@ router.get('/player-dashboard', isAuthenticated, async (req, res) => {
         `;
         const joinedSessionsResult = await pool.query(joinedSessionsQuery, [userId]);
 
-        // Render the dashboard with fetched data
         res.render('player-dashboard', { 
             sessions: sessionsResult.rows, 
             sports: sportsResult.rows,
-            joinedSessions: joinedSessionsResult.rows // ✅ Now included
+            joinedSessions: joinedSessionsResult.rows 
         });
 
     } catch (error) {
@@ -173,7 +158,7 @@ router.get('/player-dashboard', isAuthenticated, async (req, res) => {
     }
 });
 
-// Create Session
+
 router.post('/sessions', isAuthenticated, async (req, res) => {
     try {
         const { sport_id, venue, date_time } = req.body;
@@ -185,7 +170,7 @@ router.post('/sessions', isAuthenticated, async (req, res) => {
             [sport_id, userId, date_time, venue, 'upcoming']
         );
 
-        // Redirect based on role
+
         if (user.role === 'admin') {
             res.redirect('/admin-dashboard'); // Redirect admin to admin dashboard
         } else {
@@ -198,14 +183,13 @@ router.post('/sessions', isAuthenticated, async (req, res) => {
     }
 });
 
-// Join Session
+
 router.post('/sessions/join/:id', isAuthenticated, async (req, res) => {
     try {
         const sessionId = req.params.id;
         const userId = req.session.user.id; 
         const userRole = req.session.user.role; 
 
-        // Fetch the session details to check its date
         const sessionQuery = await pool.query(
             'SELECT * FROM sessions WHERE id = $1',
             [sessionId]
@@ -215,7 +199,7 @@ router.post('/sessions/join/:id', isAuthenticated, async (req, res) => {
         const sessionDate = new Date(session.date_time);
         const currentDate = new Date();
 
-        // Check if the session date is in the past
+
         if (sessionDate < currentDate) {
             // If the session is in the past, do not allow joining
             if (userRole === 'admin') {
@@ -226,14 +210,12 @@ router.post('/sessions/join/:id', isAuthenticated, async (req, res) => {
             alert("session is over"); 
         }
 
-        // Check if the user is already a participant in the session
         const checkIfAlreadyJoined = await pool.query(
             'SELECT * FROM session_participants WHERE session_id = $1 AND user_id = $2',
             [sessionId, userId]
         );
 
         if (checkIfAlreadyJoined.rows.length > 0) {
-            // If already joined, redirect to the appropriate dashboard
             if (userRole === 'admin') {
                 return res.redirect('/admin-dashboard'); 
             } else {
@@ -241,13 +223,11 @@ router.post('/sessions/join/:id', isAuthenticated, async (req, res) => {
             }
         }
 
-        // Insert the user into the session participants
         await pool.query(
             'INSERT INTO session_participants (session_id, user_id) VALUES ($1, $2)', 
             [sessionId, userId]
         );
 
-        // Redirect to the appropriate dashboard based on user role
         if (userRole === 'admin') {
             return res.redirect('/admin-dashboard');
         } else {
@@ -260,8 +240,6 @@ router.post('/sessions/join/:id', isAuthenticated, async (req, res) => {
 });
 
 
-
-// Reports for Admin
 router.get('/reports', isAdmin, async (req, res) => {
     try {
         
@@ -296,7 +274,7 @@ router.post('/sessions/delete/:id', async (req, res) => {
         
         await pool.query('DELETE FROM session_participants WHERE session_id = $1', [sessionId]);
 
-        // Step 2: Delete the session from sessions table
+
         await pool.query('DELETE FROM sessions WHERE id = $1', [sessionId]);
 
         res.redirect('/admin-dashboard');
