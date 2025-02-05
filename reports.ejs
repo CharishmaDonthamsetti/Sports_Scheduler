@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 85%;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #e0e0e0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 16px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            background-color: #fafafa;
+        }
+        tr:nth-child(even) td {
+            background-color: #f2f2f2;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 30px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Sports Sessions and Players Report</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Sport Name</th>
+                    <th>Session ID</th>
+                    <th>Venue</th>
+                    <th>Date & Time</th>
+                    <th>Players Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% report.forEach(item => { %>
+                    <tr>
+                        <td><%= item.sport_name %></td>
+                        <td><%= item.session_id %></td>
+                        <td><%= item.venue %></td>
+                        <td><%= new Date(item.date_time).toLocaleString() %></td>
+                        <td><%= item.player_name || 'No players joined' %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <a href="/admin-dashboard" class="btn">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>
