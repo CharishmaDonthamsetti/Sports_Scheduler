@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;  /* Light grayish-blue background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 30px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* Heading */
+        h2 {
+            color: #1a237e;  /* Dark blue heading */
+            margin-bottom: 20px;
+        }
+
+        /* Input Fields and Select */
+        input, select {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #90a4ae;  /* Soft gray-blue border */
+            border-radius: 8px;
+            outline: none;
+            background: #eceff1;  /* Light background */
+            color: #263238;  /* Dark gray text */
+            font-size: 16px;
+        }
+        input::placeholder, select {
+            color: #607d8b;  /* Gray-blue placeholder */
+        }
+
+        /* Buttons */
+        .btn {
+            width: 95%;
+            padding: 12px;
+            background: #3949ab;  /* Professional dark blue */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background: #303f9f;  /* Slightly darker on hover */
+        }
+
+        /* Links */
+        a {
+            color: #1e88e5;  /* Blue link color */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            input, select, .btn {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        function redirectUser(role) {
+            if (role === "player") {
+                window.location.href = "/player-dashboard";
+            } else if (role === "admin") {
+                window.location.href = "/admin-dashboard";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form id="registerForm" action="/register" method="POST" onsubmit="handleSubmit(event)">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role" id="role" required>
+                <option value="">Select Role</option>
+                <option value="player">Player</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <p>Already have an account? <a href="/login">Login</a></p>
+    </div>
+
+    <script>
+        async function handleSubmit(event) {
+            event.preventDefault(); // Prevent form from reloading the page
+
+            const form = document.getElementById("registerForm");
+            const formData = new FormData(form);
+
+            const response = await fetch("/register", {
+                method: "POST",
+                body: new URLSearchParams(formData),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            if (response.ok) {
+                const role = document.getElementById("role").value;
+                redirectUser(role);
+            } else {
+                alert("Registration failed. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>
