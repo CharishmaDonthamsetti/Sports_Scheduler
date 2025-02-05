@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;  /* Light grayish-blue background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 30px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* Headings */
+        h2 {
+            color: #1a237e;  /* Dark blue heading */
+            margin-bottom: 20px;
+        }
+
+        /* Inputs */
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #90a4ae;  /* Soft gray-blue border */
+            border-radius: 8px;
+            outline: none;
+            background: #eceff1;  /* Light background */
+            color: #263238;  /* Dark gray text */
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: #607d8b;  /* Gray-blue placeholder */
+        }
+
+        /* Buttons */
+        .btn {
+            width: 95%;
+            padding: 12px;
+            background: #3949ab;  /* Professional dark blue */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background: #303f9f;  /* Slightly darker on hover */
+        }
+
+        /* Links */
+        a {
+            color: #1a237e;  /* Dark blue links */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Additional Text */
+        p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #37474f;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            input, .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/login" method="POST">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <p>Don't have an account? <a href="/register">Register</a></p>
+        <p><a href="/change-password">Forgot Password?</a></p>
+    </div>
+</body>
+</html>
